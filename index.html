@@ -1,0 +1,431 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1E4F8F">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Casa de Chipiona</title><!-- version conectada 2 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: casa encalada — cabecera azulejo, un panel por pestaña, cuadrícula de ocupación habitaciones × noches */
+:root{
+  --cal:#F5F7F7; --muro:#FFFFFF; --tinta:#1B2733; --suave:#5B6874; --linea:#DCE3E8;
+  --azulejo:#1E4F8F; --azulejo-fg:#FFFFFF; --albero:#B9821F; --albero-bg:#F6ECD6;
+  --ok:#2E7D4F; --ok-bg:#E3F2E8; --alerta:#B3412E; --alerta-bg:#F9E3DE;
+  --finde:#EEF2F5; --hoy:#F6ECD6;
+  --p-luis:#2F6FB3; --p-ignacio:#B5543A; --p-maca:#8A4FA8; --p-ramon:#2E8A6E; --p-jesus:#B98A1A;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --cuerpo:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --cal:#11171D; --muro:#1A222A; --tinta:#E6ECF1; --suave:#9AA8B4; --linea:#2C3742;
+  --azulejo:#5B8FD6; --azulejo-fg:#0D1620; --albero:#E0AE4E; --albero-bg:#332814;
+  --ok:#6CC596; --ok-bg:#16301F; --alerta:#F08C77; --alerta-bg:#3A1C16;
+  --finde:#161E25; --hoy:#332814;
+  --p-luis:#6FA6E6; --p-ignacio:#E58A70; --p-maca:#C08BDC; --p-ramon:#5FC5A4; --p-jesus:#E2B64C;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --cal:#11171D; --muro:#1A222A; --tinta:#E6ECF1; --suave:#9AA8B4; --linea:#2C3742;
+  --azulejo:#5B8FD6; --azulejo-fg:#0D1620; --albero:#E0AE4E; --albero-bg:#332814;
+  --ok:#6CC596; --ok-bg:#16301F; --alerta:#F08C77; --alerta-bg:#3A1C16;
+  --finde:#161E25; --hoy:#332814;
+  --p-luis:#6FA6E6; --p-ignacio:#E58A70; --p-maca:#C08BDC; --p-ramon:#5FC5A4; --p-jesus:#E2B64C;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--cal);color:var(--tinta);font-family:var(--cuerpo);font-size:16px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+header.cab{background:var(--azulejo);color:var(--azulejo-fg)}
+header.cab .wrap{padding-block:20px 18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,4vw,2.2rem);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{margin:2px 0 0;opacity:.85;font-size:.9rem}
+.quien{display:flex;align-items:center;gap:10px;font-size:.95rem}
+.quien button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:999px;padding:4px 12px;font:inherit;font-size:.85rem;cursor:pointer}
+.franja{height:10px;background:repeating-linear-gradient(45deg,var(--azulejo) 0 10px,var(--albero) 10px 20px);opacity:.9}
+nav.tabs{display:flex;gap:4px;margin:20px 0 16px;border-bottom:1px solid var(--linea)}
+nav.tabs button{font:inherit;font-weight:700;background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;color:var(--suave);cursor:pointer;display:flex;gap:8px;align-items:center}
+nav.tabs button[aria-selected="true"]{color:var(--tinta);border-color:var(--albero)}
+.cuenta{background:var(--alerta-bg);color:var(--alerta);border-radius:999px;padding:0 8px;font-size:.8rem}
+section.panel{display:flex;flex-direction:column;gap:20px}
+.bloque{background:var(--muro);border:1px solid var(--linea);border-radius:10px;padding:18px}
+h2{font-family:var(--display);font-weight:700;font-size:1.25rem;margin:0 0 12px}
+.etq{display:block;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--suave);margin-bottom:6px}
+input,select,textarea{font:inherit;color:var(--tinta);background:var(--cal);border:1px solid var(--linea);border-radius:8px;padding:9px 11px;width:100%}
+textarea{min-height:80px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.chip:focus-within{outline:2px solid var(--albero);outline-offset:2px}
+.fila{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;display:inline-flex;align-items:center;border:1px solid var(--linea);border-radius:999px;padding:7px 14px;cursor:pointer;background:var(--cal);user-select:none}
+.chip input{position:absolute;opacity:0;width:1px;height:1px}
+.chip.on{background:var(--azulejo);color:var(--azulejo-fg);border-color:var(--azulejo)}
+.chip.ocupada{border-style:dashed;color:var(--suave)}
+.chip.ocupada.on{background:var(--alerta);border-color:var(--alerta);color:var(--muro)}
+.btn{font:inherit;font-weight:700;background:var(--azulejo);color:var(--azulejo-fg);border:0;border-radius:8px;padding:10px 18px;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sec{background:transparent;color:var(--azulejo);border:1px solid var(--linea)}
+.btn.peligro{background:var(--alerta);color:var(--muro)}
+.btn.peq{padding:5px 12px;font-size:.85rem}
+.acciones{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.aviso{border-radius:8px;padding:10px 12px;font-size:.92rem}
+.aviso.mal{background:var(--alerta-bg);color:var(--alerta)}
+.aviso.bien{background:var(--ok-bg);color:var(--ok)}
+.aviso.info{background:var(--albero-bg);color:var(--tinta)}
+/* cuadrícula de ocupación */
+.mesnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.mesnav strong{font-family:var(--display);font-size:1.1rem;text-transform:capitalize}
+.scroll{overflow-x:auto;border:1px solid var(--linea);border-radius:8px}
+table.ocup{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.8rem;min-width:100%}
+table.ocup th,table.ocup td{border-right:1px solid var(--linea);border-bottom:1px solid var(--linea);text-align:center;padding:0;height:34px;min-width:30px}
+table.ocup thead th{font-weight:700;color:var(--suave);padding:4px 2px;line-height:1.1}
+table.ocup thead th small{display:block;font-weight:400;font-size:.65rem;text-transform:uppercase}
+table.ocup th.hab{position:sticky;left:0;background:var(--muro);text-align:left;padding:0 10px;white-space:nowrap;z-index:1;color:var(--tinta);min-width:150px}
+table.ocup .fin{background:var(--finde)}
+table.ocup .hoy{background:var(--hoy)}
+table.ocup td.res{color:var(--muro);font-weight:700}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .dow{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--suave);text-align:center;padding:2px 0 4px}
+.dia{border:1px solid var(--linea);border-radius:6px;padding:4px;min-height:104px;display:flex;flex-direction:column;gap:3px;background:var(--muro);min-width:0}
+.dia.fin{background:var(--finde)}
+.dia.hoy{background:var(--hoy);border-color:var(--albero)}
+.dia .num{font-weight:700;font-size:.85rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.slot{height:13px;border-radius:3px;font-size:.66rem;line-height:13px;color:var(--muro);font-weight:700;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot.libre{box-shadow:inset 0 0 0 1px var(--linea);opacity:.6}
+@media (max-width:640px){.slot{font-size:0;height:10px;line-height:10px}.dia{min-height:84px;padding:3px;gap:2px}.cal{gap:3px}}
+.nota-cal{font-size:.85rem;color:var(--suave);margin:10px 0 0}
+.leyenda{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:.85rem;color:var(--suave)}
+.leyenda span{display:inline-flex;align-items:center;gap:6px}
+.punto{width:12px;height:12px;border-radius:3px;display:inline-block}
+/* listas */
+.lista{display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:0}
+.item{display:grid;grid-template-columns:6px 1fr auto;gap:12px;align-items:start;border:1px solid var(--linea);border-radius:8px;padding:12px 12px 12px 0;background:var(--cal)}
+.item .barra{align-self:stretch;border-radius:0 4px 4px 0}
+.item .cuerpo{min-width:0}
+.item .tit{font-weight:700}
+.item .meta{color:var(--suave);font-size:.85rem}
+.item p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.estado{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px}
+.estado.abierta{background:var(--alerta-bg);color:var(--alerta)}
+.estado.resuelta{background:var(--ok-bg);color:var(--ok)}
+.vacio{color:var(--suave);font-size:.95rem;padding:8px 0}
+.dcha{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.filtro{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+/* selector de persona */
+.portada{max-width:560px;margin:40px auto 0;text-align:center;display:flex;flex-direction:column;gap:18px}
+.portada h2{font-size:1.6rem;margin:0}
+.personas{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.persona{font:inherit;font-family:var(--display);font-weight:700;font-size:1.3rem;padding:22px 10px;border-radius:12px;border:2px solid var(--linea);background:var(--muro);color:var(--tinta);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px}
+.persona:hover{border-color:var(--albero)}
+.inicial{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:var(--muro);font-size:1.2rem}
+@media (prefers-reduced-motion:no-preference){.persona{transition:border-color .15s,transform .15s}.persona:hover{transform:translateY(-2px)}}
+</style>
+</head><body>
+<header class="cab">
+  <div class="wrap">
+    <div>
+      <h1>Casa de Chipiona</h1>
+      <p class="sub">Reservas e incidencias de la casa familiar</p>
+    </div>
+    <div class="quien" id="quien" hidden>
+      <span>Estás como <strong id="quienNombre"></strong></span>
+      <button type="button" id="cambiar">Cambiar</button>
+    </div>
+  </div>
+</header>
+<div class="franja" aria-hidden="true"></div>
+
+<main class="wrap">
+  <div id="estadoDatos" class="aviso info" style="margin-top:16px" hidden></div>
+
+  <!-- Paso 1: quién eres -->
+  <section id="portada" class="portada">
+    <h2>¿Quién eres?</h2>
+    <p class="sub" style="color:var(--suave)">Elige tu nombre para reservar o avisar de una incidencia.</p>
+    <div class="personas" id="personas"></div>
+  </section>
+
+  <div id="app" hidden>
+    <nav class="tabs" role="tablist">
+      <button role="tab" id="tabRes" aria-selected="true" type="button">Reservas</button>
+      <button role="tab" id="tabInc" aria-selected="false" type="button">Incidencias <span class="cuenta" id="cuentaInc" hidden></span></button>
+    </nav>
+
+    <!-- RESERVAS -->
+    <section class="panel" id="panelRes">
+      <form class="bloque" id="formRes" novalidate>
+        <h2>Nueva reserva</h2>
+        <div class="fila">
+          <div><label class="etq" for="llegada">Llegada</label><input type="date" id="llegada" required></div>
+          <div><label class="etq" for="salida">Salida</label><input type="date" id="salida" required></div>
+        </div>
+        <div style="margin-top:14px">
+          <span class="etq">Habitaciones</span>
+          <div class="chips" id="chipsHab"></div>
+        </div>
+        <div style="margin-top:14px">
+          <label class="etq" for="notaRes">Nota (opcional)</label>
+          <input type="text" id="notaRes" maxlength="200" placeholder="Ej.: vamos con los niños">
+        </div>
+        <div id="avisoRes" class="aviso" style="margin-top:14px" hidden></div>
+        <div class="acciones"><button class="btn" type="submit" id="btnRes">Reservar</button></div>
+      </form>
+
+      <div class="bloque">
+        <div class="mesnav">
+          <button class="btn sec peq" type="button" id="mesAnt" aria-label="Mes anterior">←</button>
+          <strong id="mesTitulo"></strong>
+          <button class="btn sec peq" type="button" id="mesSig" aria-label="Mes siguiente">→</button>
+        </div>
+        <div class="cal" id="tabla"></div>
+        <div class="leyenda" id="leyenda"></div>
+      </div>
+
+      <div class="bloque">
+        <h2>Próximas reservas</h2>
+        <ul class="lista" id="listaRes"><li class="vacio">Cargando reservas…</li></ul>
+      </div>
+    </section>
+
+    <!-- INCIDENCIAS -->
+    <section class="panel" id="panelInc" hidden>
+      <form class="bloque" id="formInc" novalidate>
+        <h2>Avisar de una incidencia</h2>
+        <div class="fila">
+          <div><label class="etq" for="titulo">Qué pasa</label><input type="text" id="titulo" maxlength="120" placeholder="Ej.: gotea el grifo de la cocina" required></div>
+          <div><label class="etq" for="zona">Dónde</label><select id="zona"></select></div>
+        </div>
+        <div style="margin-top:14px"><label class="etq" for="desc">Detalles (opcional)</label><textarea id="desc" maxlength="1000"></textarea></div>
+        <div id="avisoInc" class="aviso" style="margin-top:14px" hidden></div>
+        <div class="acciones"><button class="btn" type="submit" id="btnInc">Registrar incidencia</button></div>
+      </form>
+
+      <div class="bloque">
+        <h2>Incidencias</h2>
+        <div class="filtro chips" id="filtroInc"></div>
+        <ul class="lista" id="listaInc"><li class="vacio">Cargando incidencias…</li></ul>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ====== CONFIGURACIÓN: pega aquí los datos de tu proyecto Supabase ======
+   Supabase → Project Settings → API: "Project URL" y la clave "anon public" (o "publishable") */
+const SUPABASE_URL="https://cvahcbmgrwljxxdpqypq.supabase.co";
+const SUPABASE_KEY="sb_publishable_neJstoMqAOVWJTy3mni_gw_lDnaA_U-";
+</script>
+<script>
+(function(){
+const PERSONAS=[{id:"luis",n:"Luis"},{id:"ignacio",n:"Ignacio"},{id:"maca",n:"Maca"},{id:"ramon",n:"Ramón"},{id:"jesus",n:"Jesús"}];
+const HABS=["Planta Baja","Cuarto de la Azotea","Habitación de Matrimonio","Cuarto del Fondo","Cuarto de paso"];
+const ZONAS=[...HABS,"Cocina","Baño","Salón","Azotea","Patio / exterior","Toda la casa"];
+const $=id=>document.getElementById(id);
+const colorDe=pid=>`var(--p-${pid})`;
+const nombreDe=pid=>(PERSONAS.find(p=>p.id===pid)||{n:pid}).n;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+let yo=null, db=null, puedeEscribir=true;
+let reservas=[], incidencias=[], cargadoRes=false, cargadoInc=false;
+let filtroInc="abierta", confirmando=null;
+const hoy=new Date(); const HOY=iso(hoy);
+let mes=new Date(hoy.getFullYear(),hoy.getMonth(),1);
+
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function sumaDias(s,n){const [y,m,d]=s.split("-").map(Number);return iso(new Date(y,m-1,d+n))}
+function fechaLarga(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("es-ES",{weekday:"short",day:"numeric",month:"short"})}
+function noches(a,b){const [y1,m1,d1]=a.split("-").map(Number),[y2,m2,d2]=b.split("-").map(Number);return Math.round((Date.UTC(y2,m2-1,d2)-Date.UTC(y1,m1-1,d1))/864e5)}
+function solapa(a1,b1,a2,b2){return a1<b2 && a2<b1}
+
+/* ---------- persona ---------- */
+function pintarPersonas(){
+  $("personas").innerHTML=PERSONAS.map(p=>`<button type="button" class="persona" data-p="${p.id}"><span class="inicial" style="background:${colorDe(p.id)}">${p.n[0]}</span>${p.n}</button>`).join("");
+  $("personas").querySelectorAll("button").forEach(b=>b.onclick=()=>elegir(b.dataset.p));
+}
+function elegir(pid){
+  yo=pid; try{localStorage.setItem("chipiona-persona",pid)}catch(e){}
+  $("quienNombre").textContent=nombreDe(pid);
+  $("quien").hidden=false; $("portada").hidden=true; $("app").hidden=false;
+  render();
+}
+$("cambiar").onclick=()=>{yo=null;try{localStorage.removeItem("chipiona-persona")}catch(e){}
+  $("quien").hidden=true;$("portada").hidden=false;$("app").hidden=true};
+
+/* ---------- pestañas ---------- */
+function tab(cual){
+  $("tabRes").setAttribute("aria-selected",cual==="res");$("tabInc").setAttribute("aria-selected",cual==="inc");
+  $("panelRes").hidden=cual!=="res";$("panelInc").hidden=cual!=="inc";
+  try{localStorage.setItem("chipiona-tab",cual)}catch(e){}
+}
+$("tabRes").onclick=()=>tab("res");$("tabInc").onclick=()=>tab("inc");
+
+/* ---------- ocupación ---------- */
+function ocupante(hab,dia){return reservas.find(r=>r.habitaciones.includes(hab)&&r.llegada<=dia&&dia<r.salida)}
+const CORTO=["P. Baja","Azotea","Matrimonio","Fondo","Paso"];
+function pintarTabla(){
+  $("mesTitulo").textContent=mes.toLocaleDateString("es-ES",{month:"long",year:"numeric"});
+  const y=mes.getFullYear(),m=mes.getMonth(),n=new Date(y,m+1,0).getDate(),desfase=(new Date(y,m,1).getDay()+6)%7;
+  let h=["lun","mar","mié","jue","vie","sáb","dom"].map(d=>`<div class="dow">${d}</div>`).join("");
+  for(let i=0;i<desfase;i++)h+=`<div aria-hidden="true"></div>`;
+  for(let i=1;i<=n;i++){const d=new Date(y,m,i),s=iso(d);const c=s===HOY?"hoy":((d.getDay()===0||d.getDay()===6)?"fin":"");
+    h+=`<div class="dia ${c}"><span class="num">${i}</span>`+HABS.map((hab,k)=>{const r=ocupante(hab,s);
+      return r?`<span class="slot" style="background:${colorDe(r.persona)}" title="${esc(hab)} · ${esc(nombreDe(r.persona))}: ${fechaLarga(r.llegada)} → ${fechaLarga(r.salida)}">${CORTO[k]} · ${esc(nombreDe(r.persona))}</span>`:`<span class="slot libre" title="${esc(hab)}: libre"></span>`}).join("")+`</div>`;}
+  $("tabla").innerHTML=h;
+  $("leyenda").innerHTML=PERSONAS.map(p=>`<span><i class="punto" style="background:${colorDe(p.id)}"></i>${p.n}</span>`).join("")+`<p class="nota-cal" style="flex-basis:100%">Cada día muestra quién duerme esa noche. Las barras van siempre en este orden: ${HABS.map((h,k)=>(k+1)+". "+h).join(" · ")}.</p>`;
+}
+function pintarTablaVieja(){
+  const n=new Date(mes.getFullYear(),mes.getMonth()+1,0).getDate(), dias=[];
+  for(let i=1;i<=n;i++)dias.push(new Date(mes.getFullYear(),mes.getMonth(),i));
+  const cls=d=>{const s=iso(d);return s===HOY?"hoy":(d.getDay()===0||d.getDay()===6?"fin":"")};
+  let h="<thead><tr><th class='hab'>Noche del…</th>"+dias.map(d=>`<th class="${cls(d)}">${d.getDate()}<small>${d.toLocaleDateString("es-ES",{weekday:"narrow"})}</small></th>`).join("")+"</tr></thead><tbody>";
+  for(const hab of HABS){
+    h+=`<tr><th class="hab" scope="row">${hab}</th>`;
+    for(const d of dias){const r=ocupante(hab,iso(d));
+      h+=r?`<td class="res" style="background:${colorDe(r.persona)}" title="${esc(nombreDe(r.persona))}: ${fechaLarga(r.llegada)} → ${fechaLarga(r.salida)}">${nombreDe(r.persona)[0]}</td>`:`<td class="${cls(d)}"></td>`;}
+    h+="</tr>";
+  }
+  $("tabla").innerHTML=h+"</tbody>";
+  $("leyenda").innerHTML=PERSONAS.map(p=>`<span><i class="punto" style="background:${colorDe(p.id)}"></i>${p.n}</span>`).join("");
+}
+$("mesAnt").onclick=()=>{mes=new Date(mes.getFullYear(),mes.getMonth()-1,1);pintarTabla()};
+$("mesSig").onclick=()=>{mes=new Date(mes.getFullYear(),mes.getMonth()+1,1);pintarTabla()};
+
+/* ---------- formulario reserva ---------- */
+const elegidas=new Set();
+function conflictos(){
+  const a=$("llegada").value,b=$("salida").value; const out={};
+  if(!a||!b||b<=a)return out;
+  for(const hab of HABS){const r=reservas.find(r=>r.habitaciones.includes(hab)&&solapa(a,b,r.llegada,r.salida));if(r)out[hab]=r}
+  return out;
+}
+function pintarChips(){
+  const c=conflictos();
+  $("chipsHab").innerHTML=HABS.map((h,i)=>`<label class="chip ${elegidas.has(h)?"on":""} ${c[h]?"ocupada":""}"><input type="checkbox" id="hab${i}" value="${esc(h)}" ${elegidas.has(h)?"checked":""}>${h}${c[h]?` · ocupada (${esc(nombreDe(c[h].persona))})`:""}</label>`).join("");
+  $("chipsHab").querySelectorAll("input").forEach(inp=>inp.onchange=()=>{inp.checked?elegidas.add(inp.value):elegidas.delete(inp.value);pintarChips();validarRes()});
+}
+function validarRes(){
+  const a=$("llegada").value,b=$("salida").value,av=$("avisoRes");let msg="",tipo="mal";
+  const c=conflictos(); const choques=[...elegidas].filter(h=>c[h]);
+  if(a&&b&&b<=a)msg="La salida tiene que ser posterior a la llegada.";
+  else if(choques.length)msg=choques.map(h=>`${h} ya está reservada por ${nombreDe(c[h].persona)} (${fechaLarga(c[h].llegada)} → ${fechaLarga(c[h].salida)}).`).join(" ");
+  else if(a&&b&&elegidas.size){msg=`${noches(a,b)} noche${noches(a,b)===1?"":"s"} · ${[...elegidas].join(", ")}`;tipo="info"}
+  av.hidden=!msg;av.className="aviso "+tipo;av.textContent=msg;
+  $("btnRes").disabled=!db||!puedeEscribir||!a||!b||b<=a||!elegidas.size||choques.length>0;
+}
+$("llegada").addEventListener("change",()=>{if($("llegada").value&&(!$("salida").value||$("salida").value<=$("llegada").value))$("salida").value=sumaDias($("llegada").value,1);$("salida").min=sumaDias($("llegada").value,1);pintarChips();validarRes()});
+$("salida").addEventListener("change",()=>{pintarChips();validarRes()});
+$("formRes").addEventListener("submit",async e=>{
+  e.preventDefault(); if($("btnRes").disabled)return;
+  const datos={persona:yo,habitaciones:HABS.filter(h=>elegidas.has(h)),llegada:$("llegada").value,salida:$("salida").value,nota:$("notaRes").value.trim(),creada:new Date().toISOString()};
+  $("btnRes").disabled=true;
+  try{await db.collection("reservas").add(datos);
+    elegidas.clear();$("notaRes").value="";$("llegada").value="";$("salida").value="";
+    const [y,m]=datos.llegada.split("-").map(Number);mes=new Date(y,m-1,1);
+    pintarChips();validarRes();pintarTabla();
+    const av=$("avisoRes");av.hidden=false;av.className="aviso bien";av.textContent="Reserva guardada.";
+  }catch(err){fallo($("avisoRes"),err);validarRes()}
+});
+
+function pintarReservas(){
+  const l=$("listaRes");
+  if(!cargadoRes){return}
+  const prox=reservas.filter(r=>r.salida>HOY).sort((a,b)=>a.llegada.localeCompare(b.llegada));
+  if(!prox.length){l.innerHTML=`<li class="vacio">No hay reservas próximas. Elige fechas y habitaciones arriba para hacer la primera.</li>`;return}
+  l.innerHTML=prox.map(r=>{
+    const conf=confirmando==="r:"+r.id;
+    return `<li class="item"><span class="barra" style="background:${colorDe(r.persona)}"></span><div class="cuerpo">
+      <div class="tit">${esc(nombreDe(r.persona))} · ${fechaLarga(r.llegada)} → ${fechaLarga(r.salida)}</div>
+      <div class="meta">${noches(r.llegada,r.salida)} noche${noches(r.llegada,r.salida)===1?"":"s"} · ${r.habitaciones.map(esc).join(", ")}</div>
+      ${r.nota?`<p>${esc(r.nota)}</p>`:""}</div>
+      <div class="dcha">${puedeEscribir&&db?(conf?`<span class="meta">¿Anular?</span><button class="btn peligro peq" data-anular="${r.id}" type="button">Sí, anular</button><button class="btn sec peq" data-cancelar type="button">No</button>`:`<button class="btn sec peq" data-pedir="${r.id}" type="button">Anular</button>`):""}</div></li>`}).join("");
+  l.querySelectorAll("[data-pedir]").forEach(b=>b.onclick=()=>{confirmando="r:"+b.dataset.pedir;pintarReservas()});
+  l.querySelectorAll("[data-cancelar]").forEach(b=>b.onclick=()=>{confirmando=null;pintarReservas()});
+  l.querySelectorAll("[data-anular]").forEach(b=>b.onclick=async()=>{b.disabled=true;try{await db.doc("reservas/"+b.dataset.anular).delete();confirmando=null}catch(err){fallo($("avisoRes"),err)}});
+}
+
+/* ---------- incidencias ---------- */
+$("zona").innerHTML=ZONAS.map(z=>`<option>${esc(z)}</option>`).join("");
+function validarInc(){$("btnInc").disabled=!db||!puedeEscribir||!$("titulo").value.trim()}
+$("titulo").addEventListener("input",validarInc);
+$("formInc").addEventListener("submit",async e=>{
+  e.preventDefault(); if($("btnInc").disabled)return;
+  const datos={persona:yo,titulo:$("titulo").value.trim(),zona:$("zona").value,descripcion:$("desc").value.trim(),estado:"abierta",creada:new Date().toISOString()};
+  $("btnInc").disabled=true;
+  try{await db.collection("incidencias").add(datos);$("titulo").value="";$("desc").value="";filtroInc="abierta";
+    const av=$("avisoInc");av.hidden=false;av.className="aviso bien";av.textContent="Incidencia registrada.";pintarIncidencias()}
+  catch(err){fallo($("avisoInc"),err)} validarInc();
+});
+function pintarIncidencias(){
+  const abiertas=incidencias.filter(i=>i.estado!=="resuelta").length;
+  $("cuentaInc").hidden=!abiertas;$("cuentaInc").textContent=abiertas;
+  const filtros=[["abierta","Abiertas"],["resuelta","Resueltas"],["todas","Todas"]];
+  $("filtroInc").innerHTML=filtros.map(([k,t])=>`<button type="button" class="chip ${filtroInc===k?"on":""}" data-f="${k}">${t}</button>`).join("");
+  $("filtroInc").querySelectorAll("button").forEach(b=>b.onclick=()=>{filtroInc=b.dataset.f;pintarIncidencias()});
+  const l=$("listaInc"); if(!cargadoInc)return;
+  const vis=incidencias.filter(i=>filtroInc==="todas"||(filtroInc==="resuelta"?i.estado==="resuelta":i.estado!=="resuelta")).sort((a,b)=>b.creada.localeCompare(a.creada));
+  if(!vis.length){l.innerHTML=`<li class="vacio">${filtroInc==="abierta"?"No hay incidencias abiertas. Si algo no funciona en la casa, apúntalo arriba.":"Nada que mostrar aquí."}</li>`;return}
+  l.innerHTML=vis.map(i=>{const res=i.estado==="resuelta";const f=new Date(i.creada).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"});
+    return `<li class="item"><span class="barra" style="background:${res?"var(--ok)":"var(--alerta)"}"></span><div class="cuerpo">
+      <div class="tit">${esc(i.titulo)}</div>
+      <div class="meta">${esc(i.zona)} · avisó ${esc(nombreDe(i.persona))} el ${f}${res&&i.resueltaPor?` · resuelta por ${esc(nombreDe(i.resueltaPor))}`:""}</div>
+      ${i.descripcion?`<p>${esc(i.descripcion)}</p>`:""}</div>
+      <div class="dcha"><span class="estado ${res?"resuelta":"abierta"}">${res?"Resuelta":"Abierta"}</span>
+      ${db&&puedeEscribir?`<button class="btn sec peq" type="button" data-t="${i.id}" data-res="${res?1:0}">${res?"Reabrir":"Marcar resuelta"}</button>`:""}</div></li>`}).join("");
+  l.querySelectorAll("[data-t]").forEach(b=>b.onclick=async()=>{b.disabled=true;const res=b.dataset.res==="1";
+    try{await db.doc("incidencias/"+b.dataset.t).update(res?{estado:"abierta",resueltaPor:null,resueltaEn:null}:{estado:"resuelta",resueltaPor:yo,resueltaEn:new Date().toISOString()})}
+    catch(err){fallo($("avisoInc"),err);b.disabled=false}});
+}
+
+function fallo(av,err){
+  av.hidden=false;av.className="aviso mal";
+  av.textContent="No se pudo guardar. Comprueba la conexión e inténtalo de nuevo.";
+}
+
+function render(){pintarTabla();pintarChips();validarRes();validarInc();pintarReservas();pintarIncidencias()}
+
+/* ---------- arranque ---------- */
+pintarPersonas();
+let guardada=null; try{guardada=localStorage.getItem("chipiona-persona")}catch(e){}
+if(guardada&&PERSONAS.some(p=>p.id===guardada))elegir(guardada); else render();
+try{const t=localStorage.getItem("chipiona-tab");if(t)tab(t)}catch(e){}
+
+(async()=>{
+  const fin=()=>{cargadoRes=cargadoInc=true;render()};
+  if(!window.supabase){await new Promise(ok=>{const sc=document.createElement("script");sc.src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js";sc.onload=sc.onerror=ok;document.head.appendChild(sc)})}
+  if(SUPABASE_URL.startsWith("PEGA")){const s=$("estadoDatos");s.hidden=false;
+    s.textContent="La app aún no está conectada a la base de datos (falta configurar Supabase).";fin();return}
+  if(!window.supabase){const s=$("estadoDatos");s.hidden=false;
+    s.textContent="No se pudo cargar la conexión con la base de datos. Comprueba que tienes internet y recarga la página.";fin();return}
+  const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const cache={reservas:[],incidencias:[]};
+  const oyentes={reservas:[],incidencias:[]};
+  async function cargar(t){
+    const {data,error}=await sb.from(t).select("id,datos");
+    if(error){oyentes[t].forEach(o=>o.mal&&o.mal(error));return}
+    cache[t]=data;
+    const snap={docs:data.map(r=>({id:r.id,data:()=>r.datos}))};
+    oyentes[t].forEach(o=>o.ok(snap));
+  }
+  db={
+    collection:t=>({
+      add:async datos=>{const {error}=await sb.from(t).insert({datos});if(error)throw error;cargar(t)},
+      onSnapshot:(ok,mal)=>{oyentes[t].push({ok,mal});cargar(t)}
+    }),
+    doc:ruta=>{const [t,id]=ruta.split("/");return{
+      delete:async()=>{const {error}=await sb.from(t).delete().eq("id",id);if(error)throw error;cargar(t)},
+      update:async cambios=>{const act=(cache[t].find(r=>r.id===id)||{}).datos||{};
+        const {error}=await sb.from(t).update({datos:{...act,...cambios}}).eq("id",id);if(error)throw error;cargar(t)}
+    }}
+  };
+  db.collection("reservas").onSnapshot(s=>{reservas=s.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.llegada&&r.salida&&Array.isArray(r.habitaciones));cargadoRes=true;pintarTabla();pintarChips();validarRes();pintarReservas()},
+    ()=>{cargadoRes=true;$("listaRes").innerHTML=`<li class="vacio">No se pudieron cargar las reservas. Recarga la página.</li>`});
+  db.collection("incidencias").onSnapshot(s=>{incidencias=s.docs.map(d=>({id:d.id,...d.data()})).filter(i=>i.titulo&&i.creada);cargadoInc=true;pintarIncidencias()},
+    ()=>{cargadoInc=true;$("listaInc").innerHTML=`<li class="vacio">No se pudieron cargar las incidencias. Recarga la página.</li>`});
+  // Cambios en directo: cuando alguien guarda algo, todos lo ven al momento
+  sb.channel("casa").on("postgres_changes",{event:"*",schema:"public",table:"reservas"},()=>cargar("reservas"))
+    .on("postgres_changes",{event:"*",schema:"public",table:"incidencias"},()=>cargar("incidencias")).subscribe();
+  // Por si el móvil estuvo en segundo plano
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden){cargar("reservas");cargar("incidencias")}});
+  setInterval(()=>{cargar("reservas");cargar("incidencias")},60000);
+  render();
+})();
+})();
+</script>
+
+</body></html>
