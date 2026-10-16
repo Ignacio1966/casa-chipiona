@@ -1,7 +1,7 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1E4F8F">
 <style>body{margin:0}[hidden]{display:none!important}</style>
-<title>Casa de Chipiona</title><!-- version conectada 2 -->
+<title>Casa de Chipiona</title><!-- version conectada 3 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
@@ -239,7 +239,7 @@ function pintarPersonas(){
   $("personas").querySelectorAll("button").forEach(b=>b.onclick=()=>elegir(b.dataset.p));
 }
 function elegir(pid){
-  yo=pid; try{localStorage.setItem("chipiona-persona",pid)}catch(e){}
+  yo=pid;
   $("quienNombre").textContent=nombreDe(pid);
   $("quien").hidden=false; $("portada").hidden=true; $("app").hidden=false;
   render();
@@ -381,8 +381,8 @@ function render(){pintarTabla();pintarChips();validarRes();validarInc();pintarRe
 
 /* ---------- arranque ---------- */
 pintarPersonas();
-let guardada=null; try{guardada=localStorage.getItem("chipiona-persona")}catch(e){}
-if(guardada&&PERSONAS.some(p=>p.id===guardada))elegir(guardada); else render();
+try{localStorage.removeItem("chipiona-persona")}catch(e){}
+render();
 try{const t=localStorage.getItem("chipiona-tab");if(t)tab(t)}catch(e){}
 
 (async()=>{
